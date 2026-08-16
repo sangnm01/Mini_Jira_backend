@@ -7,6 +7,8 @@ model User {
   avatar    String?
   role      Role     @default(MEMBER)
   isActive  Boolean  @default(true)
+  failedLoginAttempts Int @default(0)
+  lockedUntil DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
