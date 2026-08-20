@@ -119,6 +119,7 @@ export class AuthService {
       sub: user.id,
       username: user.username,
       role: user.role,
+      isActive: true
     });
 
     const { password: _password, ...result } = user;
