@@ -8,10 +8,12 @@ import {
   Delete,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/type/authenticated-request.type';
 
 @Controller('users')
 export class UsersController {
@@ -26,18 +28,27 @@ export class UsersController {
     return this.usersService.findAll(Number(page), Number(limit));
   }
 
+  //Get user by jwt token - user logged in
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getProfile(@Req() req: AuthenticatedRequest) {
+    return this.usersService.getProfile(req.user.userId);
+  }
+
+  //Get user by id
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.remove(id);
   }
 }
