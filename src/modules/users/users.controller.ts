@@ -11,14 +11,16 @@ import {
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/type/authenticated-request.type';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  //Get all users with pagination
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(
@@ -42,17 +44,22 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  //update user profile by jwt token - user logged in
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  updateProfile() {
-    return this.usersService.updateProfile();
+  updateProfile(@Req() req: AuthenticatedRequest, @Body() updateProfileDto: UpdateProfileDto) {
+    return this.usersService.updateProfile(req.user.userId, updateProfileDto);
   }
 
+  //update user by id
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req: AuthenticatedRequest) {
+    return this.usersService.update(id, updateUserDto, req.user.role);
   }
 
+  //delete user by id
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: AuthenticatedRequest, ) {
     return this.usersService.remove(id, req.user.userId, req.user.role);
