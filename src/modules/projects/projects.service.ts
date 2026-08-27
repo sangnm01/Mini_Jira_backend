@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -55,8 +55,27 @@ export class ProjectsService {
     }
   }
 
-  findAll() {
-    return `This action returns all projects`;
+  async getProjectsByUser(userId: string, limit: number, page: number) {
+    const skip = (page - 1) * limit;
+
+    const projects = await this.prisma.project.findMany({
+      skip,
+      take: limit,
+      where: {
+        members: { some: { userId } },
+      },
+      select: {
+        id: true,
+        projectName: true,
+        key: true,
+        description: true
+      },
+    });
+
+    return {
+      message: 'Get projects success',
+      data: projects,
+    };
   }
 
   findOne(id: number) {

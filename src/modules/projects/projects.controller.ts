@@ -8,6 +8,9 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -28,9 +31,15 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto, req.user.userId);
   }
 
+  //Get all project of user
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
+  getProjectsByUser(
+    @Req() req: AuthenticatedRequest,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.projectsService.getProjectsByUser(req.user.userId, limit, page);
   }
 
   @Get(':id')

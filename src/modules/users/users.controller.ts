@@ -9,6 +9,8 @@ import {
   UseGuards,
   Query,
   Req,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -24,10 +26,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    return this.usersService.findAll(Number(page), Number(limit));
+    return this.usersService.findAll(page, limit);
   }
 
   //Get user by jwt token - user logged in
